@@ -57,6 +57,11 @@ Route::middleware('checkLogin')->group(function () {
     Route::post('/admin/order/listOrderDetail', [Admin::class, 'listOrderDetail'])->name('listOrderDetail');
     Route::post('/admin/order/generateQr', [Admin::class, 'generateQr'])->name('generateQr');
     Route::post('/admin/order/confirm_pay', [Admin::class, 'confirm_pay'])->name('confirm_pay');
+    Route::get('/admin/order', [Admin::class, 'order'])->name('adminorder');
+    Route::post('/admin/order/ListOrderPay', [Admin::class, 'ListOrderPay'])->name('ListOrderPay');
+    Route::post('/admin/order/listOrderDetailPay', [Admin::class, 'listOrderDetailPay'])->name('listOrderDetailPay');
+    Route::get('/admin/order/printReceipt/{id}', [Admin::class, 'printReceipt'])->name('printReceipt');
+    Route::get('/admin/order/printReceiptfull/{id}', [Admin::class, 'printReceiptfull'])->name('printReceiptfull');
     //ตั้งค่าเว็บไซต์
     Route::get('/admin/config', [Admin::class, 'config'])->name('config');
     Route::post('/admin/config/save', [Admin::class, 'ConfigSave'])->name('ConfigSave');
