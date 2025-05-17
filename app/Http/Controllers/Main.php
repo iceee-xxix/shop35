@@ -10,6 +10,7 @@ use App\Models\Menu;
 use App\Models\Orders;
 use App\Models\OrdersDetails;
 use App\Models\Promotion;
+use App\Models\Table;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -19,7 +20,8 @@ class Main extends Controller
     {
         $table_id = $request->input('table');
         if ($table_id) {
-            session(['table_id' => $table_id]);
+            $table = Table::where('table_number', $table_id)->first();
+            session(['table_id' => $table->id]);
         }
         $promotion = Promotion::where('is_status', 1)->get();
         $category = Categories::has('menu')->with('files')->get();
