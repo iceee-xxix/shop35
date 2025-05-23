@@ -451,7 +451,7 @@ class Admin extends Controller
         ];
         $id = $request->input('id');
         if ($id) {
-            $order = Orders::where('table_id', $id)->get();
+            $order = Orders::where('table_id', $id)->where('status', 1)->get();
             foreach ($order as $rs) {
                 $rs->status = 2;
                 $rs->save();
