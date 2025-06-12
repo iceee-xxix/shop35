@@ -25,6 +25,7 @@ Route::get('/', [Main::class, 'index'])->name('index');
 Route::get('/order', [Main::class, 'order'])->name('order');
 Route::post('/sendEmp', [Main::class, 'sendEmp'])->name('sendEmp');
 Route::post('/sendorder', [Main::class, 'SendOrder'])->name('SendOrder');
+Route::get('/payment', [Main::class, 'payment'])->name('payment');
 Route::get('/detail/{id}', [Main::class, 'detail'])->name('detail');
 Route::get('/detail', function () {
     return redirect()->route('index');
@@ -110,6 +111,8 @@ Route::middleware('checkLogin')->group(function () {
     Route::post('/admin/menu/menuOptionUpdate', [Menu::class, 'menuOptionUpdate'])->name('menuOptionUpdate');
     Route::get('/admin/menu/menuOptionEdit/{id}', [Menu::class, 'menuOptionEdit'])->name('menuOptionEdit');
     Route::post('/admin/menu/menuOptionEdit/delete', [Menu::class, 'menuOptionDelete'])->name('menuOptionDelete');
+    //
+    Route::post('/admin/order/paymentConfirm', [Admin::class, 'paymentConfirm'])->name('paymentConfirm');
 });
 
 

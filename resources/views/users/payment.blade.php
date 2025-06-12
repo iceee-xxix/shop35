@@ -55,9 +55,9 @@ $config = Config::first();
 
     .btn-aprove {
         background: linear-gradient(360deg, var(--primary-color), var(--sub-color));
-        border-radius: 20px;
+        border-radius: 10px;
         border: 0px solid #0d9700;
-        padding: 5px 0px;
+        padding: 5px 5px;
         font-weight: bold;
         text-decoration: none;
         color: rgb(255, 255, 255);
@@ -68,12 +68,15 @@ $config = Config::first();
         background: linear-gradient(360deg, var(--sub-color), var(--primary-color));
         cursor: pointer;
     }
-</style>
 
+    svg {
+        width: 100%;
+    }
+</style>
 <div class="container">
     <div class="d-flex flex-column justify-content-center gap-2">
         <div class="title-buy">
-            คำสั่งซื้อ
+            ชำระเงิน
         </div>
         <div class="bg-white px-2 pt-3 shadow-lg d-flex flex-column aling-items-center justify-content-center"
             style="border-radius: 10px;">
@@ -88,10 +91,38 @@ $config = Config::first();
                 <span id="total-price" style="color: #0d9700"></span><span class="text-dark ms-2">บาท</span>
             </div>
         </div>
-        <a href="{{route('payment')}}" class="btn-aprove mt-3" id="confirm-order-btn"
-            style="display: none;">ยืนยันคำสั่งซื้อ</a>
+        <div class="bg-white p-2 shadow-lg mt-3" style="border-radius:10px;">
+            <textarea class="form-control fw-bold text-center bg-white p-2" style="border-radius: 10px;" rows="4"
+                id="remark" placeholder="หมายเหตุ(ความต้องการเพิ่มเติม)"></textarea>
+        </div>
     </div>
 </div>
+<!-- <form action="" method="post" enctype="multipart/form-data"> -->
+<div class="container my-4">
+    <div class="d-flex flex-column align-items-center">
+        <div class="card w-100">
+            <div class="card-header bg-primary text-white">
+                ข้อมูลชำระเงิน
+            </div>
+            <div class="card-body">
+                @csrf
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <?= $qr_code ?>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <label for="silp" class="form-label d-flex justify-content-start">แนบสลิป : </label>
+                        <input type="file" class="form-control" id="silp" name="silp" required accept="image/jpeg, image/png">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn-aprove mt-3" style="display: none;" id="confirm-order-btn" type="button">ยืนยันการชำระเงิน</button>
+    </div>
+</div>
+<!-- </form> -->
 <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -123,37 +154,9 @@ $config = Config::first();
                             rightSide.classList.add('d-flex', 'align-items-center', 'gap-2');
 
                             const priceText = document.createElement('div');
-                            priceText.textContent = `${item.qty * item.price}`;
-
-                            const deleteBtn = document.createElement('button');
-                            deleteBtn.classList.add('btn-delete');
-                            deleteBtn.textContent = 'ลบ';
-                            deleteBtn.onclick = () => {
-                                item.qty -= 1;
-
-                                if (item.qty <= 0) {
-                                    delete orderData[name][type];
-                                    if (Object.keys(orderData[name]).length === 0) {
-                                        delete orderData[name];
-                                    }
-                                }
-
-                                localStorage.setItem('orderData', JSON.stringify(orderData));
-                                renderOrderList();
-                            };
-
-                            const plusBtn = document.createElement('button');
-                            plusBtn.classList.add('btn-plus');
-                            plusBtn.textContent = 'เพิ่ม';
-                            plusBtn.onclick = () => {
-                                item.qty += 1;
-                                localStorage.setItem('orderData', JSON.stringify(orderData));
-                                renderOrderList();
-                            };
+                            priceText.textContent = `${item.qty * item.price} ฿`;
 
                             rightSide.appendChild(priceText);
-                            rightSide.appendChild(plusBtn);
-                            rightSide.appendChild(deleteBtn);
 
                             el.appendChild(itemText);
                             el.appendChild(rightSide);
@@ -171,7 +174,6 @@ $config = Config::first();
         renderOrderList();
     });
 </script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const orderData = JSON.parse(localStorage.getItem('orderData')) || {};
@@ -182,35 +184,49 @@ $config = Config::first();
             confirmButton.style.display = 'inline-block';
         }
 
-        // confirmButton.addEventListener('click', function(event) {
-        //     event.preventDefault();
-        //     if (Object.keys(orderData).length > 0) {
-        //         $.ajax({
-        //             type: "post",
-        //             url: "{{ route('SendOrder') }}",
-        //             data: {
-        //                 orderData: orderData,
-        //                 remark: $('#remark').val()
-        //             },
-        //             headers: {
-        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        //             },
-        //             dataType: "json",
-        //             success: function(response) {
-        //                 if (response.status == true) {
-        //                     Swal.fire(response.message, "", "success");
-        //                     localStorage.removeItem('orderData');
-        //                     setTimeout(() => {
-        //                         location.reload();
-        //                     }, 3000);
-        //                 } else {
-        //                     Swal.fire(response.message, "", "error");
-        //                 }
-        //             }
-        //         });
-        //     }
-        // });
+        confirmButton.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('silp');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                Swal.fire("กรุณาแนบสลิปก่อน", "", "warning");
+                return;
+            }
+
+            Swal.showLoading();
+
+            const formData = new FormData();
+            formData.append('orderData', JSON.stringify(orderData)); // แปลงเป็น string ก่อนส่ง
+            formData.append('remark', $('#remark').val());
+            formData.append('silp', file); // แนบไฟล์
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('SendOrder') }}",
+                data: formData,
+                processData: false, // สำคัญ: ปิดการแปลงข้อมูล
+                contentType: false, // สำคัญ: ให้ browser จัดการ content-type เอง
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status == true) {
+                        Swal.fire(response.message, "", "success");
+                        localStorage.removeItem('orderData');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 3000);
+                    } else {
+                        Swal.fire(response.message, "", "error");
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire("เกิดข้อผิดพลาด", xhr.responseText, "error");
+                }
+            });
+        });
     });
 </script>
-
 @endsection

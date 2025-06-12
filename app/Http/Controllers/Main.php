@@ -6,6 +6,7 @@ use App\Events\OrderCreated;
 use App\Http\Controllers\admin\Category;
 use App\Http\Controllers\Controller;
 use App\Models\Categories;
+use App\Models\Config;
 use App\Models\Menu;
 use App\Models\Orders;
 use App\Models\OrdersDetails;
@@ -45,19 +46,22 @@ class Main extends Controller
             'status' => false,
             'message' => 'สั่งออเดอร์ไม่สำเร็จ',
         ];
-        $orderData = $request->input('orderData');
+        $orderData = json_decode($request->input('orderData'));
         $remark = $request->input('remark');
+        $request->validate([
+            'silp' => 'required|image|mimes:jpeg,png|max:2048',
+        ]);
         $item = array();
         $total = 0;
         foreach ($orderData as $order) {
             foreach ($order as $rs) {
                 $item[] = [
-                    'id' => $rs['id'],
-                    'price' => $rs['price'],
-                    'option' => $rs['option'],
-                    'qty' => $rs['qty'],
+                    'id' => $rs->id,
+                    'price' => $rs->price,
+                    'option' => $rs->option,
+                    'qty' => $rs->qty,
                 ];
-                $total = $total + ($rs['price'] * $rs['qty']);
+                $total = $total + ($rs->price * $rs->qty);
             }
         }
 
@@ -66,7 +70,13 @@ class Main extends Controller
             $order->table_id = session('table_id') ?? '1';
             $order->total = $total;
             $order->remark = $remark;
-            $order->status = 1;
+            $order->status = 2;
+            if ($request->hasFile('silp')) {
+                $file = $request->file('silp');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('image', $filename, 'public');
+                $order->image = $path;
+            }
             if ($order->save()) {
                 foreach ($item as $rs) {
                     $orderdetail = new OrdersDetails();
@@ -90,5 +100,12 @@ class Main extends Controller
     public function sendEmp()
     {
         event(new OrderCreated(['ลูกค้าเรียกจากโต้ะที่ ' . session('table_id')]));
+    }
+
+    public function payment()
+    {
+        $config = Config::first();
+        $qr_code = '<img width="100%" src="' . url('storage/' . $config->image_qr) . '">';
+        return view('users.payment', compact('qr_code'));
     }
 }
