@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [Main::class, 'index'])->name('index');
 Route::get('/order', [Main::class, 'order'])->name('order');
+Route::get('/listorder', [Main::class, 'listorder'])->name('listorder');
+Route::post('/listorderDetails', [Main::class, 'listorderDetails'])->name('listorderDetails');
+Route::post('/confirmPay', [Main::class, 'confirmPay'])->name('confirmPay');
 Route::post('/sendEmp', [Main::class, 'sendEmp'])->name('sendEmp');
 Route::post('/sendorder', [Main::class, 'SendOrder'])->name('SendOrder');
 Route::get('/payment', [Main::class, 'payment'])->name('payment');

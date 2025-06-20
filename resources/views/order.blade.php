@@ -73,7 +73,7 @@
             <div class="modal-body" id="body-html">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">ปิด</button>
             </div>
         </div>
     </div>
@@ -112,8 +112,33 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="confirm_pay">ยืนยันชำระเงิน</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-sm btn-primary" id="confirm_pay">ยืนยันชำระเงิน</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" id="modal-confirmPay">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">รายละเอียดการชำระเงิน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body d-flex justify-content-center">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center mb-3" id="qr_code_confirm">
+                            </div>
+                        </div>
+                        <input type="hidden" id="order_id_confirm">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="confirm_pay_2">ยืนยันชำระเงิน</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">ปิด</button>
             </div>
         </div>
     </div>
@@ -150,8 +175,8 @@
                     <input type="hidden" id="pay_id">
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" id="open-tex-full">ออกใบเสร็จ</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    <button type="submit" class="btn btn-sm btn-primary" id="open-tex-full">ออกใบเสร็จ</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">ปิด</button>
                 </div>
             </form>
         </div>
@@ -311,7 +336,7 @@
         Swal.showLoading();
         $.ajax({
             type: "post",
-            url: "{{ route('paymentConfirm') }}",
+            url: "{{ route('generateQr') }}",
             data: {
                 id: id,
                 total: total
@@ -322,12 +347,35 @@
             success: function(response) {
                 Swal.close();
                 $('#modal-pay').modal('show');
-                $('#totalPay').html(total + ' บาท');
                 $('#qr_code').html(response);
                 $('#order_id').val(id);
             }
         });
     });
+    
+    $(document).on('click', '.modalConfirmPay', function(e) {
+        var total = $(this).data('total');
+        var id = $(this).data('id');
+        Swal.showLoading();
+        $.ajax({
+            type: "post",
+            url: "{{ route('paymentConfirm') }}",
+            data: {
+                id: id,
+                total: total
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                Swal.close();
+                $('#modal-confirmPay').modal('show');
+                $('#qr_code_confirm').html(response);
+                $('#order_id_confirm').val(id);
+            }
+        });
+    });
+
     $(document).on('click', '.modalRider', function(e) {
         var total = $(this).data('total');
         var id = $(this).data('id');
@@ -351,6 +399,31 @@
             },
             success: function(response) {
                 $('#modal-pay').modal('hide')
+                if (response.status == true) {
+                    Swal.fire(response.message, "", "success");
+                    $('#myTable').DataTable().ajax.reload(null, false);
+                    $('#myTable2').DataTable().ajax.reload(null, false);
+                } else {
+                    Swal.fire(response.message, "", "error");
+                }
+            }
+        });
+    });
+
+    $('#confirm_pay_2').click(function(e) {
+        e.preventDefault();
+        var id = $('#order_id_confirm').val();
+        $.ajax({
+            url: "{{route('confirm_pay')}}",
+            type: "post",
+            data: {
+                id: id
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                $('#modal-confirmPay').modal('hide')
                 if (response.status == true) {
                     Swal.fire(response.message, "", "success");
                     $('#myTable').DataTable().ajax.reload(null, false);

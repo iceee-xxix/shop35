@@ -88,8 +88,7 @@ $config = Config::first();
                 <span id="total-price" style="color: #0d9700"></span><span class="text-dark ms-2">บาท</span>
             </div>
         </div>
-        <a href="{{route('payment')}}" class="btn-aprove mt-3" id="confirm-order-btn"
-            style="display: none;">ยืนยันคำสั่งซื้อ</a>
+        <button class="btn-aprove mt-3" style="display: none;" id="confirm-order-btn" type="button">ยืนยันการชำระเงิน</button>
     </div>
 </div>
 <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
@@ -182,34 +181,34 @@ $config = Config::first();
             confirmButton.style.display = 'inline-block';
         }
 
-        // confirmButton.addEventListener('click', function(event) {
-        //     event.preventDefault();
-        //     if (Object.keys(orderData).length > 0) {
-        //         $.ajax({
-        //             type: "post",
-        //             url: "{{ route('SendOrder') }}",
-        //             data: {
-        //                 orderData: orderData,
-        //                 remark: $('#remark').val()
-        //             },
-        //             headers: {
-        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        //             },
-        //             dataType: "json",
-        //             success: function(response) {
-        //                 if (response.status == true) {
-        //                     Swal.fire(response.message, "", "success");
-        //                     localStorage.removeItem('orderData');
-        //                     setTimeout(() => {
-        //                         location.reload();
-        //                     }, 3000);
-        //                 } else {
-        //                     Swal.fire(response.message, "", "error");
-        //                 }
-        //             }
-        //         });
-        //     }
-        // });
+        confirmButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            if (Object.keys(orderData).length > 0) {
+                $.ajax({
+                    type: "post",
+                    url: "{{ route('SendOrder') }}",
+                    data: {
+                        orderData: orderData,
+                        remark: $('#remark').val()
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status == true) {
+                            Swal.fire(response.message, "", "success");
+                            localStorage.removeItem('orderData');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 3000);
+                        } else {
+                            Swal.fire(response.message, "", "error");
+                        }
+                    }
+                });
+            }
+        });
     });
 </script>
 

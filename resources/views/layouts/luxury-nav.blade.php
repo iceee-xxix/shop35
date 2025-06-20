@@ -111,16 +111,20 @@ $config = Config::first();
 
     <nav class="bottom-navbar" id="bottomNavbar">
         <a href="/" class="">
-            <div class="icon"><i class="fas fa-home"></i></div> <!-- ✅ ไอคอนจาก Font Awesome -->
+            <div class="icon"><i class="fas fa-home"></i></div>
             <div>หน้าแรก</div>
         </a>
         <a href="javascript:void(0);" id="sendEmp">
-            <div class="icon"><i class="fas fa-user"></i></div> <!-- ✅ ไอคอนจาก Font Awesome -->
+            <div class="icon"><i class="fas fa-user"></i></div>
             <div>เรียกพนักงาน</div>
         </a>
         <a href="{{route('order')}}">
-            <div class="icon"><i class="fas fa-receipt"></i></div> <!-- ✅ ใช้ icon แสดงคำสั่งซื้อ -->
+            <div class="icon"><i class="fas fa-receipt"></i></div>
             <div>คำสั่งซื้อ</div>
+        </a>
+        <a href="{{route('listorder')}}">
+            <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+            <div>รายการ</div>
         </a>
     </nav>
     <!-- ✅ Bootstrap 5.3.0 CDN -->
