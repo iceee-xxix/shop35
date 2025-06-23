@@ -88,7 +88,7 @@ $config = Config::first();
                 <span id="total-price" style="color: #0d9700"></span><span class="text-dark ms-2">บาท</span>
             </div>
         </div>
-        <button class="btn-aprove mt-3" style="display: none;" id="confirm-order-btn" type="button">ยืนยันการชำระเงิน</button>
+        <button class="btn-aprove mt-3" style="display: none;" id="confirm-order-btn" type="button">ยืนยันคำสั่งซื้อ</button>
     </div>
 </div>
 <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
